@@ -23,6 +23,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Run this script using CRON- crontab command: 0 16 * * 1-5 /usr/bin/python3 /home/niranjana/stonks/stonksapp/lib/backend/main.py > /tmp/stonks_analysis.log 2>&1
-# cron job is scheduled at 4:00pm for monday-friday -> every week of every month.
