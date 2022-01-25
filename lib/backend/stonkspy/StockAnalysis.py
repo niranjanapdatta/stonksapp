@@ -46,11 +46,15 @@ class StockAnalysis():
                 success = True
                 start = timeit.default_timer()
             prices = []
+            highs = []
+            lows = []
             dates = []
             curr_index = 0
             nsepy_data_len = len(nsepy_data) - 1
             for index, row in nsepy_data.iterrows():
                 prices.append(row['Close'])
+                highs.append(row['High'])
+                lows.append(row['Low'])
                 dates.append(index)
                 if curr_index == nsepy_data_len:
                     is_bullish = 0 # 0 => Bearish, 2 => No Change, and 1 => Bullish
@@ -95,6 +99,8 @@ class StockAnalysis():
             down = 0 # current close < previous close
             prices_down = []
             no_change = 0 # current close = previous close
+            duration_high = -99999 # Highest high price for the time period
+            duration_low = 99999 # Lowest low price for the time period
 
             for i in range((len(volatility) - 1), -1, -1):
                 if prices[i + 1] > prices[i]:
@@ -105,6 +111,13 @@ class StockAnalysis():
                     prices_down.append(prices[i] - prices[i + 1])
                 else:
                     no_change += 1
+
+
+                if highs[i] > duration_high:
+                    duration_high = highs[i]
+
+                if lows[i] < duration_low:
+                    duration_low = lows[i]
 
 
                 if symbol == market_standard:
@@ -135,10 +148,12 @@ class StockAnalysis():
                     _avg_prices_up = start_dates.get(dates[i + 1]) + "_avg_price_up"
                     _price_down = start_dates.get(dates[i + 1]) + "_price_down"
                     _avg_prices_down = start_dates.get(dates[i + 1]) + "_avg_price_down"
+                    _duration_high = start_dates.get(dates[i + 1]) + "_duration_high"
+                    _duration_low = start_dates.get(dates[i + 1]) + "_duration_low"
                     # round((temp_sum / count), 4) => old volatility calculation formula
                     data.update({_date: str(dates[i + 1]), _close: prices[i + 1], _volatility: round(standard_deviation_for_time_period, 4), \
                     _beta: beta, _price_up: up, _avg_prices_up: (round((sum(prices_up)/ len(prices_up)), 2)), _price_down: down, 
-                    _avg_prices_down: (round((sum(prices_down)/ len(prices_down)), 2))})
+                    _avg_prices_down: (round((sum(prices_down)/ len(prices_down)), 2)), _duration_high: duration_high, _duration_low: duration_low})
                     del start_dates[dates[i + 1]]
             all_stocks_data.append(data)
             if success is True:
